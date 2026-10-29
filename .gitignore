@@ -1,6 +1,7 @@
 node_modules/
 unpackage/
 dist/
+.vite/
 .hbuilderx/
 .idea/
 .vscode/

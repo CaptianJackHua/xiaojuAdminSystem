@@ -14,6 +14,15 @@
         "navigationBarBackgroundColor": "#ffffff",
         "navigationBarTextStyle": "black"
       }
+    },
+    {
+      "path": "pages/wallpaper/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "仪表功能配置",
+        "navigationBarBackgroundColor": "#ffffff",
+        "navigationBarTextStyle": "black"
+      }
     }
   ],
   "globalStyle": {

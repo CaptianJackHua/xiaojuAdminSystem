@@ -1,7 +1,7 @@
 {
-  "name": "zhongbing-kangyang",
+  "name": "xiaoju-go-admin",
   "version": "1.0.0",
-  "description": "中兵康养 - uni-app + Vue3 + TS + Wot UI V2",
+  "description": "小驹GO管理后台 - uni-app + Vue3 + TS + Wot UI V2",
   "scripts": {
     "dev:h5": "uni",
     "build:h5": "uni build",

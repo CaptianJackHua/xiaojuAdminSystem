@@ -2,8 +2,13 @@ import { defineConfig } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
 import path from 'path'
 
+// GitHub Pages 部署：资源前缀
+// 本地 dev 用根路径，build 时用 /xiaojuAdminSystem/
+const isGhPages = process.env.GH_PAGES === '1'
+
 export default defineConfig({
   plugins: [uni()],
+  base: isGhPages ? '/xiaojuAdminSystem/' : '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src')

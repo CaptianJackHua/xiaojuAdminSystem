@@ -4,7 +4,7 @@
 import { onLaunch, onShow, onHide } from '@dcloudio/uni-app'
 
 onLaunch(() => {
-  console.log('[App] onLaunch - 中兵康养启动')
+  console.log('[App] onLaunch - 小驹GO管理后台启动')
 })
 
 onShow(() => {

@@ -2,9 +2,8 @@
   电动车车型 APP 功能配置
   技术栈：uni-app + Vue3 <script setup> + TypeScript + Wot UI V2
   设计：B 端后台 H5 原型，#165DFF 蓝色主色调，扁平风
-  顶部 segmented：车主 / 非车主；车主全功能 + 显示非车主开关状态；非车主仅显示 guestShown 功能
   左侧菜单：8 个一级分类（车辆控制/车辆状态/灯光设置/仪表设置/音效设置/驾驶调校/骑行模式/硬件管理）
-  表格：wd-switch 替换勾选框；车主模式双开关列（车主展示 / 非车主展示）
+  表格：双开关列（车主展示 / 非车主展示），级联规则：车主关闭时非车主同步关闭
 -->
 <script setup lang="ts">
 import { ref, computed } from 'vue'
@@ -230,7 +229,6 @@ const categories = ref<Category[]>(initCategories())
 let savedSnapshot = JSON.parse(JSON.stringify(categories.value))
 
 // ==================== 状态 ====================
-const role = ref<'owner' | 'guest'>('owner')
 const activeCatId = ref<string>('sound')
 const search = ref('')
 const onlyShown = ref(false)
@@ -247,55 +245,37 @@ const activeCat = computed(() =>
   categories.value.find((c) => c.id === activeCatId.value) ?? categories.value[0]
 )
 
-// 分类角标数量（显示当前角色**存在**的功能数，不是开关数）
-function catVisibleCount(cat: Category, r: 'owner' | 'guest') {
-  return cat.features.filter((f) => (r === 'owner' ? f.ownerHas : f.guestHas)).length
+// 分类角标数量（显示该分类下车主展示的功能数）
+function catShownCount(cat: Category) {
+  return cat.features.filter((f) => f.ownerShown).length
 }
 
-function catTotalCount(cat: Category) {
-  return cat.features.filter((f) => f.ownerHas).length
-}
-
-// 当前分类 + 当前角色过滤
+// 当前分类过滤：按车主功能存在性 + 搜索 + 仅看已展示
 const visibleFeatures = computed(() => {
   const cat = activeCat.value
   if (!cat) return []
   const kw = search.value.trim().toLowerCase()
   return cat.features.filter((ft) => {
-    // 角色过滤：按"存在"判断，开关关掉功能仍在表格里
-    if (role.value === 'owner') {
-      if (!ft.ownerHas) return false
-    } else {
-      if (!ft.guestHas) return false
-    }
-    // 搜索
+    if (!ft.ownerHas) return false
     if (kw && ft.name.toLowerCase().indexOf(kw) === -1) return false
-    // 仅看已展示：按开关状态过滤
-    if (onlyShown.value) {
-      if (role.value === 'owner' && !ft.ownerShown) return false
-      if (role.value === 'guest' && !ft.guestShown) return false
-    }
+    if (onlyShown.value && !ft.ownerShown) return false
     return true
   })
 })
 
 function optionText(ft: Feature) {
   if (!ft.options) return { text: '--', muted: true }
-  if (role.value === 'owner' ? !ft.ownerShown : !ft.guestShown) return { text: '未展示', muted: true }
+  if (!ft.ownerShown) return { text: '未展示', muted: true }
   const sel = ft.options.filter((o) => o.shown)
   if (!sel.length) return { text: '未选择', muted: false }
   return { text: `已选 ${sel.length} 项：${sel.map((o) => o.name).join('、')}`, muted: false }
 }
 
 // ==================== 事件 ====================
-function setRole(r: 'owner' | 'guest') {
-  role.value = r
-  // 若当前分类在新角色下无可见项，自动切到第一个有可见项的分类
-  const cat = activeCat.value
-  if (cat && catVisibleCount(cat, r) === 0) {
-    const first = categories.value.find((c) => catVisibleCount(c, r) > 0)
-    if (first) activeCatId.value = first.id
-  }
+// 车主展示开关变更：关闭时非车主同步关闭
+function onOwnerSwitchChange(ft: Feature) {
+  if (!ft.ownerShown) ft.guestShown = false
+  dirty.value = true
 }
 
 function markDirty() { dirty.value = true }
@@ -340,8 +320,11 @@ function copyFromOther() {
 </script>
 
 <template>
-  <view class="page">
-    <!-- 面包屑 -->
+  <view class="shell">
+    <app-sidebar active="app" />
+
+    <view class="page">
+      <!-- 面包屑 -->
     <view class="breadcrumb">
       <text>车辆管理</text>
       <text class="sep">/</text>
@@ -357,16 +340,6 @@ function copyFromOther() {
         <text class="page-sub">配置 APP 中展示的功能及可选项</text>
       </view>
       <wd-button plain type="primary" size="small" @click="copyFromOther">从其他车型复制</wd-button>
-    </view>
-
-    <!-- 角色切换 segmented -->
-    <view class="role-bar">
-      <view class="seg" :class="{ 'seg--active': role === 'owner' }" @click="setRole('owner')">
-        车主（全功能）
-      </view>
-      <view class="seg" :class="{ 'seg--active': role === 'guest' }" @click="setRole('guest')">
-        非车主（仅基础）
-      </view>
     </view>
 
     <!-- 主布局 -->
@@ -395,7 +368,7 @@ function copyFromOther() {
             <view v-if="activeCatId === cat.id" class="cat-indicator" />
             <text>{{ cat.name }}</text>
           </view>
-          <text class="cat-count">{{ catVisibleCount(cat, role) }}</text>
+          <text class="cat-count">{{ catShownCount(cat) }}</text>
         </view>
       </view>
 
@@ -405,7 +378,7 @@ function copyFromOther() {
           <view>
             <text class="main-title">{{ activeCat?.name }}</text>
             <text class="main-count">
-              {{ visibleFeatures.length }} 项 / 共 {{ role === 'owner' ? catTotalCount(activeCat) : catVisibleCount(activeCat, 'guest') }} 项
+              {{ visibleFeatures.length }} 项 / 共 {{ activeCat?.features.length ?? 0 }} 项
             </text>
           </view>
           <view class="check-row" @click="onlyShown = !onlyShown">
@@ -419,17 +392,16 @@ function copyFromOther() {
         <view class="tip-bar">
           <wd-icon name="info" size="28rpx" color="#165DFF" />
           <text>
-            勾选后将在 {{ role === 'owner' ? '车主' : '非车主' }} APP 中展示，具体能力以设备支持为准
+            开启车主展示后可单独设置是否向非车主展示；关闭车主展示时，非车主同步关闭。具体能力以设备支持为准
           </text>
         </view>
 
-        <!-- 表格：车主模式双开关列，非车主模式单开关列 -->
-        <view class="table" :class="{ 'table--owner': role === 'owner' }">
+        <!-- 表格：双开关列 -->
+        <view class="table table--owner">
           <view class="table-head">
             <text class="col col-name">功能名称</text>
-            <text v-if="role === 'owner'" class="col col-switch">车主展示</text>
-            <text v-if="role === 'owner'" class="col col-switch">非车主展示</text>
-            <text v-else class="col col-switch">是否展示</text>
+            <text class="col col-switch">车主展示</text>
+            <text class="col col-switch">非车主展示</text>
             <text class="col col-opt">可选项</text>
             <text class="col col-op">操作</text>
           </view>
@@ -438,38 +410,23 @@ function copyFromOther() {
             <view v-for="(ft, i) in visibleFeatures" :key="ft.name + i" class="table-row">
               <text class="col col-name">{{ ft.name }}</text>
 
-              <!-- 车主模式：两个开关 -->
-              <template v-if="role === 'owner'">
-                <view class="col col-switch">
-                  <wd-switch
-                    v-model="ft.ownerShown"
-                    size="small"
-                    color="#165DFF"
-                    @change="markDirty"
-                  />
-                </view>
-                <view class="col col-switch">
-                  <wd-switch
-                    v-model="ft.guestShown"
-                    size="small"
-                    color="#165DFF"
-                    :disabled="!ft.guestHas"
-                    @change="markDirty"
-                  />
-                </view>
-              </template>
-
-              <!-- 非车主模式：一个开关 -->
-              <template v-else>
-                <view class="col col-switch">
-                  <wd-switch
-                    v-model="ft.guestShown"
-                    size="small"
-                    color="#165DFF"
-                    @change="markDirty"
-                  />
-                </view>
-              </template>
+              <view class="col col-switch">
+                <wd-switch
+                  v-model="ft.ownerShown"
+                  size="small"
+                  color="#165DFF"
+                  @change="onOwnerSwitchChange(ft)"
+                />
+              </view>
+              <view class="col col-switch">
+                <wd-switch
+                  v-model="ft.guestShown"
+                  size="small"
+                  color="#165DFF"
+                  :disabled="!ft.ownerShown"
+                  @change="markDirty"
+                />
+              </view>
 
               <text class="col col-opt" :class="{ muted: optionText(ft).muted }">
                 {{ optionText(ft).text }}
@@ -568,6 +525,7 @@ function copyFromOther() {
         </view>
       </view>
     </wd-popup>
+    </view>
   </view>
 </template>
 
@@ -586,7 +544,7 @@ $radius: 12rpx;
 .page {
   min-height: 100vh;
   background: $bg-page;
-  padding: 24rpx 32rpx 200rpx;
+  padding: 24rpx 32rpx 200rpx 242rpx;
   box-sizing: border-box;
 }
 
@@ -607,21 +565,6 @@ $radius: 12rpx;
   margin: 24rpx 0 28rpx;
   .page-title { display: block; font-size: 44rpx; font-weight: 700; color: $text-main; }
   .page-sub { display: block; font-size: 24rpx; color: $muted; margin-top: 10rpx; }
-}
-
-.role-bar {
-  display: inline-flex;
-  background: #fff;
-  border: 2rpx solid $rule;
-  border-radius: 12rpx;
-  overflow: hidden;
-  margin-bottom: 28rpx;
-  .seg {
-    padding: 14rpx 36rpx;
-    font-size: 26rpx;
-    color: $text-2;
-    &--active { background: $primary; color: #fff; font-weight: 500; }
-  }
 }
 
 .layout { display: flex; gap: 24rpx; align-items: flex-start; }
@@ -706,7 +649,7 @@ $radius: 12rpx;
 .muted { color: $muted-2; }
 
 .footer-bar {
-  position: fixed; bottom: 0; left: 0; right: 0; background: #fff;
+  position: fixed; bottom: 0; left: 210rpx; right: 0; background: #fff;
   border-top: 2rpx solid $rule; padding: 20rpx 32rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex; justify-content: space-between; align-items: center; z-index: 50;
   .dirty-tip {
