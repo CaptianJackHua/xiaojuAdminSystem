@@ -1,35 +1,64 @@
-<!-- 全局左侧菜单栏 -->
+<!-- 全局左侧菜单栏：支持主菜单 + 分组子菜单 -->
 <script setup lang="ts">
 interface MenuItem {
   key: string
   label: string
   url: string
 }
+interface MenuGroup {
+  key: string
+  label: string
+  items: MenuItem[]
+}
 
 defineProps<{ active?: string }>()
 
-const menus: MenuItem[] = [
-  { key: 'app', label: 'APP 功能配置', url: '/pages/index/index' },
-  { key: 'meter', label: '仪表功能配置', url: '/pages/wallpaper/index' }
+const groups: MenuGroup[] = [
+  {
+    key: 'func',
+    label: '功能配置',
+    items: [
+      { key: 'app', label: 'APP 功能配置', url: '/pages/index/index' },
+      { key: 'meter', label: '仪表功能配置', url: '/pages/wallpaper/index' }
+    ]
+  },
+  {
+    key: 'theme',
+    label: '主题配置',
+    items: [
+      { key: 'theme-list', label: '主题库', url: '/pages/theme/list' },
+      { key: 'theme-editor', label: '皮肤编辑器', url: '/pages/theme/editor' },
+      { key: 'theme-preview', label: '预览与真机', url: '/pages/theme/preview' },
+      { key: 'theme-release', label: '发布中心', url: '/pages/theme/release' }
+    ]
+  }
 ]
 
 function go(item: MenuItem, active?: string) {
   if (item.key === active) return
   uni.reLaunch({ url: item.url })
 }
+
+function isActive(itemKey: string, active?: string) {
+  return itemKey === active
+}
 </script>
 
 <template>
   <view class="side">
     <view class="side-brand">小驹GO管理后台</view>
-    <view
-      v-for="item in menus"
-      :key="item.key"
-      class="side-item"
-      :class="{ 'side-item--active': item.key === active }"
-      @click="go(item, active)"
-    >
-      {{ item.label }}
+
+    <view v-for="group in groups" :key="group.key" class="side-group">
+      <view class="side-group-title">{{ group.label }}</view>
+      <view
+        v-for="item in group.items"
+        :key="item.key"
+        class="side-item"
+        :class="{ 'side-item--active': isActive(item.key, active) }"
+        @click="go(item, active)"
+      >
+        {{ item.label }}
+      </view>
     </view>
   </view>
 </template>
@@ -62,11 +91,22 @@ function go(item: MenuItem, active?: string) {
   text-overflow: ellipsis;
 }
 
-.side-item {
-  height: 84rpx;
-  line-height: 84rpx;
+.side-group { margin-top: 8rpx; }
+.side-group-title {
+  height: 56rpx;
+  line-height: 56rpx;
   padding: 0 24rpx;
-  font-size: 25rpx;
+  font-size: 20rpx;
+  color: #6b7785;
+  letter-spacing: 1rpx;
+  text-transform: uppercase;
+}
+
+.side-item {
+  height: 72rpx;
+  line-height: 72rpx;
+  padding: 0 24rpx;
+  font-size: 24rpx;
   color: #c2cbd6;
   cursor: pointer;
   white-space: nowrap;
@@ -82,6 +122,7 @@ function go(item: MenuItem, active?: string) {
     background: #2f6bff;
     color: #fff;
     font-weight: 500;
+    border-left: 4rpx solid #7aa5ff;
   }
 }
 </style>

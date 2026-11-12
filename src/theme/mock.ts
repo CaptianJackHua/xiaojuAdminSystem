@@ -1,0 +1,296 @@
+// ============================================================
+// 主题配置模块：类型定义 + Mock 数据
+// ============================================================
+
+// ---------- 主题状态（已移除审核流程，4 步：草稿 → 灰度 → 全量 → 下线） ----------
+export type ThemeStatus = 'draft' | 'gray' | 'online' | 'offline'
+export type ThemePlatform = 'ios' | 'android' | 'all'
+export type ThemeType = '节日' | '活动' | '季节' | '日常' | '联名'
+
+export const STATUS_LABEL: Record<ThemeStatus, string> = {
+  draft: '草稿',
+  gray: '灰度中',
+  online: '全量',
+  offline: '已下线'
+}
+export const STATUS_COLOR: Record<ThemeStatus, string> = {
+  draft: '#86909c',
+  gray: '#165DFF',
+  online: '#00b42a',
+  offline: '#c9cdd4'
+}
+export const PLATFORM_LABEL: Record<ThemePlatform, string> = {
+  ios: 'iOS', android: 'Android', all: '全平台'
+}
+
+// ---------- 车型 / 终端 ----------
+export interface CarModel { id: string; name: string; year: string; tags: string[] }
+export interface Terminal { id: string; name: string; type: '车机' | '手机' | '仪表' | '音箱' }
+
+export const mockCarModels: CarModel[] = [
+  { id: 'c-m1', name: '绿驹 小驹 GO', year: '2024', tags: ['热门', '主力'] },
+  { id: 'c-m2', name: '绿驹 极锋 Pro', year: '2023', tags: ['旗舰'] },
+  { id: 'c-m3', name: '绿驹 骑士 S3', year: '2023', tags: ['入门'] },
+  { id: 'c-m4', name: '绿驹 雷霆 X', year: '2025', tags: ['新上市'] },
+  { id: 'c-m5', name: '绿驹 自由者', year: '2022', tags: ['经典'] }
+]
+export const mockTerminals: Terminal[] = [
+  { id: 't-1', name: '车机中控屏', type: '车机' },
+  { id: 't-2', name: '智能仪表板', type: '仪表' },
+  { id: 't-3', name: '绿驹 GO App', type: '手机' },
+  { id: 't-4', name: '语音音箱', type: '音箱' }
+]
+
+// ---------- 主题类型专属参数 ----------
+export interface ThemeTypeParam {
+  key: string
+  label: string
+  type: 'text' | 'date' | 'select' | 'color' | 'textarea' | 'list'
+  hint?: string
+  options?: string[]
+  default?: string
+}
+export const TYPE_PARAMS: Record<ThemeType, ThemeTypeParam[]> = {
+  节日: [
+    { key: 'festival-name', label: '节日名称', type: 'text', default: '春节' },
+    { key: 'festival-date', label: '节日日期', type: 'date', default: '2026-02-17' },
+    { key: 'blessing', label: '默认祝福语', type: 'textarea', hint: '骑行时触发的彩蛋文案', default: '新春快乐，一路平安！' },
+    { key: 'firework-lottie', label: '彩蛋动效', type: 'select', options: ['烟花', '红包雨', '生肖动画', '无需'] }
+  ],
+  季节: [
+    { key: 'season-range', label: '适用月份', type: 'select', options: ['3-5月', '6-8月', '9-11月', '12-2月'], default: '6-8月' },
+    { key: 'season-scene', label: '场景主题', type: 'select', options: ['樱花', '薄荷绿', '落叶金', '雪景白'], default: '薄荷绿' },
+    { key: 'ride-tip', label: '骑行提示文案', type: 'textarea', hint: '根据季节调整的温馨提示', default: '夏日骑行注意补水防晒~' }
+  ],
+  活动: [
+    { key: 'activity-title', label: '活动名称', type: 'text', default: '周年庆' },
+    { key: 'activity-start', label: '开始时间', type: 'date', default: '2026-12-01' },
+    { key: 'activity-end', label: '结束时间', type: 'date', default: '2026-12-07' },
+    { key: 'prize-desc', label: '活动奖励说明', type: 'textarea' },
+    { key: 'cta-btn', label: 'CTA 按钮文案', type: 'text', default: '立即参与' }
+  ],
+  日常: [
+    { key: 'scene-mode', label: '场景模式', type: 'select', options: ['通勤', '休闲', '亲子', '通用'], default: '通勤' },
+    { key: 'default-dark', label: '默认暗色模式', type: 'select', options: ['跟随系统', '强制亮色', '强制暗色'], default: '跟随系统' }
+  ],
+  联名: [
+    { key: 'partner', label: '合作方', type: 'text', default: '' },
+    { key: 'co-brand-logo', label: '联合 Logo', type: 'select', options: ['左对齐', '右对齐', '居中展示'], default: '右对齐' },
+    { key: 'co-brand-period', label: '联名有效期', type: 'select', options: ['3 个月', '6 个月', '长期合作'], default: '6 个月' }
+  ]
+}
+
+// ---------- SkinTheme ----------
+export interface SkinTheme {
+  id: string
+  name: string
+  code: string
+  type: ThemeType
+  platforms: ThemePlatform[]
+  status: ThemeStatus
+  effectiveTime: string
+  grayRatio: number
+  userCount: number
+  updatedBy: string
+  updatedAt: string
+  colors: Record<string, string>
+  previewCover: string
+  typeParams: Record<string, string>        // 类型专属参数
+  carModels: string[]                      // 发布：适用车型
+  terminals: string[]                      // 发布：适用终端
+  remark: string                           // 备注
+}
+
+export const mockThemes: SkinTheme[] = [
+  {
+    id: 't-001', name: '2025 春节·福运红', code: 'spring-fortune-2025',
+    type: '节日', platforms: ['ios', 'android'],
+    status: 'online', effectiveTime: '2025-01-28 00:00',
+    grayRatio: 100, userCount: 284320,
+    updatedBy: '王设计', updatedAt: '2025-02-01 10:22',
+    colors: { primary: '#E83A30', secondary: '#F7B500', bg: '#FFF6EC', text: '#1D2129' },
+    previewCover: '#E83A30',
+    typeParams: { 'festival-name': '春节', 'festival-date': '2025-01-29', blessing: '新春快乐，一路平安！', 'firework-lottie': '红包雨' },
+    carModels: ['c-m1', 'c-m2', 'c-m3', 'c-m4', 'c-m5'], terminals: ['t-1', 't-2', 't-3'], remark: '覆盖全部在售车型'
+  },
+  {
+    id: 't-002', name: '夏日骑行·薄荷绿', code: 'summer-mint',
+    type: '季节', platforms: ['ios', 'android'],
+    status: 'gray', effectiveTime: '2026-11-15 00:00',
+    grayRatio: 15, userCount: 12480,
+    updatedBy: '李运营', updatedAt: '2026-11-10 18:45',
+    colors: { primary: '#00B42A', secondary: '#7BE188', bg: '#F0FFF4', text: '#1D2129' },
+    previewCover: '#00B42A',
+    typeParams: { 'season-range': '6-8月', 'season-scene': '薄荷绿', 'ride-tip': '夏日骑行注意补水防晒~' },
+    carModels: ['c-m1', 'c-m2', 'c-m4'], terminals: ['t-1', 't-3'], remark: '新车型优先灰度'
+  },
+  {
+    id: 't-003', name: '周年庆·极光紫', code: 'anniversary-aurora',
+    type: '活动', platforms: ['ios', 'android'],
+    status: 'draft', effectiveTime: '2026-12-01 00:00',
+    grayRatio: 0, userCount: 0,
+    updatedBy: '王设计', updatedAt: '2026-11-11 09:03',
+    colors: { primary: '#722ED1', secondary: '#B37FEB', bg: '#F9F0FF', text: '#1D2129' },
+    previewCover: '#722ED1',
+    typeParams: { 'activity-title': '绿驹十周年庆', 'activity-start': '2026-12-01', 'activity-end': '2026-12-07', 'cta-btn': '立即参与' },
+    carModels: [], terminals: [], remark: '待运营补充活动规则'
+  },
+  {
+    id: 't-004', name: '通勤日常·雾蓝', code: 'daily-fogblue',
+    type: '日常', platforms: ['ios', 'android'],
+    status: 'online', effectiveTime: '2026-06-01 00:00',
+    grayRatio: 100, userCount: 512900,
+    updatedBy: '系统', updatedAt: '2026-06-01 00:00',
+    colors: { primary: '#165DFF', secondary: '#4080FF', bg: '#F7F8FA', text: '#1D2129' },
+    previewCover: '#165DFF',
+    typeParams: { 'scene-mode': '通勤', 'default-dark': '跟随系统' },
+    carModels: ['c-m1', 'c-m2', 'c-m3', 'c-m4', 'c-m5'], terminals: ['t-1', 't-2', 't-3', 't-4'], remark: '默认主题'
+  },
+  {
+    id: 't-005', name: '冬季骑行·暖橙', code: 'winter-warm',
+    type: '季节', platforms: ['ios', 'android'],
+    status: 'draft', effectiveTime: '2026-12-15 00:00',
+    grayRatio: 0, userCount: 0,
+    updatedBy: '赵设计', updatedAt: '2026-11-09 16:20',
+    colors: { primary: '#F53F3F', secondary: '#FF9A2E', bg: '#FFF5EB', text: '#1D2129' },
+    previewCover: '#FF9A2E',
+    typeParams: { 'season-range': '12-2月', 'season-scene': '雪景白', 'ride-tip': '冬季骑行注意保暖，路面易滑请减速~' },
+    carModels: [], terminals: [], remark: ''
+  },
+  {
+    id: 't-006', name: '情人节·粉霓', code: 'valentine-pink',
+    type: '节日', platforms: ['ios', 'android'],
+    status: 'offline', effectiveTime: '2026-02-10 00:00',
+    grayRatio: 0, userCount: 98200,
+    updatedBy: '李运营', updatedAt: '2026-02-20 23:59',
+    colors: { primary: '#F77234', secondary: '#FF976A', bg: '#FFF1F0', text: '#1D2129' },
+    previewCover: '#F77234',
+    typeParams: { 'festival-name': '情人节', 'festival-date': '2026-02-14', blessing: '愿每一次骑行都有陪伴~', 'firework-lottie': '无需' },
+    carModels: ['c-m1', 'c-m2'], terminals: ['t-1', 't-3'], remark: '仅主力车型上线'
+  },
+  {
+    id: 't-007', name: '绿驹联名·科技蓝', code: 'lj-tech-co',
+    type: '联名', platforms: ['ios', 'android'],
+    status: 'gray', effectiveTime: '2026-11-20 10:00',
+    grayRatio: 5, userCount: 4120,
+    updatedBy: '孙运营', updatedAt: '2026-11-12 08:30',
+    colors: { primary: '#0FC6C2', secondary: '#5CDBD5', bg: '#E8FFFB', text: '#1D2129' },
+    previewCover: '#0FC6C2',
+    typeParams: { partner: '某科技品牌', 'co-brand-logo': '右对齐', 'co-brand-period': '6 个月' },
+    carModels: ['c-m4'], terminals: ['t-1', 't-2'], remark: '新车型专属联名'
+  }
+]
+
+// ---------- 编辑器 ----------
+// 资源服务器地址（本地调试环境）
+export const ASSET_BASE = 'http://localhost:5173'
+
+export interface EditorGroup { key: string; name: string; icon: string; items: EditorItem[] }
+export interface EditorItem {
+  key: string; label: string; value: string
+  type: 'color' | 'media' | 'select' | 'text' | 'textarea'
+  hint?: string
+  options?: string[]
+  url?: string            // 上传后的服务器地址，无值表示未上传
+}
+
+export const mockEditorGroups: EditorGroup[] = [
+  {
+    key: 'color', name: '色彩', icon: 'palette',
+    items: [
+      { key: 'primary', label: '品牌主色', value: '#E83A30', type: 'color' },
+      { key: 'secondary', label: '辅助色', value: '#F7B500', type: 'color' },
+      { key: 'bg', label: '页面背景', value: '#FFF6EC', type: 'color' },
+      { key: 'text', label: '主文字', value: '#1D2129', type: 'color' },
+      { key: 'text-sub', label: '副文字', value: '#4E5969', type: 'color' },
+      { key: 'btn-primary', label: '按钮主色', value: '#E83A30', type: 'color' },
+      { key: 'btn-float', label: '悬浮按钮', value: '#F7B500', type: 'color' },
+      { key: 'status-bar', label: '状态栏', value: '#E83A30', type: 'color' }
+    ]
+  },
+  {
+    key: 'image', name: '图片', icon: 'image',
+    items: [
+      { key: 'splash', label: '启动图', value: 'splash-spring.png', type: 'media', hint: '建议 1242x2688 · ≤300KB', url: ASSET_BASE + '/theme/spring-fortune-2025/splash-spring.png' },
+      { key: 'banner-home', label: '首页 Banner', value: 'banner-fortune.png', type: 'media', hint: '建议 1080x480 · ≤180KB', url: ASSET_BASE + '/theme/spring-fortune-2025/banner-fortune.png' },
+      { key: 'avatar-badge', label: '头像徽章', value: 'badge-rosette.png', type: 'media', hint: '建议 200x200 · PNG 透明', url: ASSET_BASE + '/theme/spring-fortune-2025/badge-rosette.png' },
+      { key: 'empty-illust', label: '空状态插画', value: '', type: 'media', hint: '建议 800x800 · ≤200KB' }
+    ]
+  },
+  {
+    key: 'tabbar', name: '底部 Tab', icon: 'grid',
+    items: [
+      { key: 'tab-home', label: '首页 Tab 图标', value: 'tab-home-red.png', type: 'media', hint: '选中态 · 建议 81x81', url: ASSET_BASE + '/theme/spring-fortune-2025/tab-home-red.png' },
+      { key: 'tab-home-inactive', label: '首页 Tab（未选）', value: '', type: 'media', hint: '未选中态 · 建议 81x81' },
+      { key: 'tab-ride', label: '骑行 Tab 图标', value: 'tab-ride-red.png', type: 'media', hint: '建议 81x81', url: ASSET_BASE + '/theme/spring-fortune-2025/tab-ride-red.png' },
+      { key: 'tab-car', label: '爱车 Tab 图标', value: 'tab-car-red.png', type: 'media', hint: '建议 81x81', url: ASSET_BASE + '/theme/spring-fortune-2025/tab-car-red.png' },
+      { key: 'tab-me', label: '我的 Tab 图标', value: '', type: 'media', hint: '建议 81x81' },
+      { key: 'tab-bg', label: 'Tab 栏背景', value: '#FFFFFF', type: 'color' },
+      { key: 'tab-active-color', label: 'Tab 选中色', value: '#E83A30', type: 'color' },
+      { key: 'tab-inactive-color', label: 'Tab 未选色', value: '#86909C', type: 'color' }
+    ]
+  },
+  {
+    key: 'car', name: '爱车页', icon: 'car',
+    items: [
+      { key: 'car-hero', label: '车辆大图', value: 'car-hero-spring.png', type: 'media', hint: '主题风格车辆渲染图 · 建议 750x500', url: ASSET_BASE + '/theme/spring-fortune-2025/car-hero-spring.png' },
+      { key: 'car-frame', label: '车辆相框', value: '#F7B500', type: 'color', hint: '车辆图边框/光晕色' },
+      { key: 'car-status-icon', label: '状态图标风格', value: '节日喜庆', type: 'select', options: ['节日喜庆', '简洁线性', '科技发光'] },
+      { key: 'car-battery-bg', label: '电量条底色', value: '#FFE58F', type: 'color' },
+      { key: 'car-battery-fill', label: '电量条填充', value: '#E83A30', type: 'color' }
+    ]
+  },
+  {
+    key: 'ride', name: '骑行首页', icon: 'play-circle',
+    items: [
+      { key: 'ride-bg', label: '骑行页背景', value: 'ride-bg-spring.png', type: 'media', hint: '顶部 750x600', url: ASSET_BASE + '/theme/spring-fortune-2025/ride-bg-spring.png' },
+      { key: 'ride-bg-video', label: '骑行页动效视频', value: '', type: 'media', hint: 'MP4 · ≤5MB · 可选' },
+      { key: 'ride-speed-color', label: '速度数字色', value: '#E83A30', type: 'color' },
+      { key: 'ride-start-btn', label: '开始骑行按钮', value: '#E83A30', type: 'color' },
+      { key: 'ride-float-icon', label: '悬浮按钮图标', value: '', type: 'media', hint: '建议 120x120' }
+    ]
+  },
+  {
+    key: 'me', name: '我的页', icon: 'user',
+    items: [
+      { key: 'me-banner', label: '我的页 Banner', value: 'me-banner-spring.png', type: 'media', hint: '750x300', url: ASSET_BASE + '/theme/spring-fortune-2025/me-banner-spring.png' },
+      { key: 'me-title-color', label: '昵称色', value: '#1D2129', type: 'color' },
+      { key: 'me-card-bg', label: '卡片背景', value: '#FFFFFF', type: 'color' }
+    ]
+  },
+  {
+    key: 'sticker', name: '贴图', icon: 'star',
+    items: [
+      { key: 'watermark', label: '水印角标', value: 'mark-2025.png', type: 'media', hint: '右上角 · 半透明 · 80x80', url: ASSET_BASE + '/theme/spring-fortune-2025/mark-2025.png' },
+      { key: 'corner-l', label: '左上角装饰', value: 'deco-tl.png', type: 'media', hint: '240x240', url: ASSET_BASE + '/theme/spring-fortune-2025/deco-tl.png' },
+      { key: 'corner-r', label: '右下角装饰', value: '', type: 'media', hint: '240x240' }
+    ]
+  },
+  {
+    key: 'slot', name: '装修位', icon: 'layout',
+    items: [
+      { key: 'home-top', label: '首页顶部装修位', value: '启用', type: 'select', options: ['启用', '关闭', '替换为节日图'] },
+      { key: 'ride-float', label: '骑行页悬浮位', value: '启用', type: 'select', options: ['启用', '关闭'] },
+      { key: 'me-banner-slot', label: '我的页 banner 位', value: '替换为节日图', type: 'select', options: ['默认', '替换为节日图', '关闭'] }
+    ]
+  }
+]
+
+// ---------- 版本历史（已去掉审核相关条目） ----------
+export interface HistoryVersion {
+  version: number
+  operator: string
+  action: string          // 创建草稿 / 设计提交 / 运营配置 / 灰度放量 / 全量 / 下线 / 回滚
+  remark: string
+  time: string
+}
+export const mockHistory: HistoryVersion[] = [
+  { version: 8,  operator: '王设计', action: '设计提交', remark: '调整主色为深红 + 金色点缀，更新 Tab 图标', time: '2025-01-25 09:15' },
+  { version: 7,  operator: '李运营', action: '运营配置', remark: '生效时间 1/28 00:00 · 全量', time: '2025-01-26 14:00' },
+  { version: 6,  operator: '系统',   action: '灰度放量', remark: '5% → 15% → 40% → 100% 指标正常', time: '2025-01-28 ~ 01-31' },
+  { version: 5,  operator: '王设计', action: '设计提交', remark: '修正 banner 尺寸 1242x600', time: '2025-01-22 18:10' },
+  { version: 4,  operator: '王设计', action: '设计提交', remark: '添加车辆大图 + 底部 Tab 全套素材', time: '2025-01-20 16:02' },
+  { version: 3,  operator: '李运营', action: '运营配置', remark: '初版 1/25 生效', time: '2025-01-19 10:00' },
+  { version: 2,  operator: '王设计', action: '创建草稿', remark: '福运红主题初始化', time: '2025-01-18 15:00' },
+  { version: 1,  operator: '王设计', action: '创建草稿', remark: '从「雾蓝」复制作为起点', time: '2025-01-18 14:58' }
+]
