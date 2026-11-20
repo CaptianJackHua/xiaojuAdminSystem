@@ -31,6 +31,27 @@ const groups: MenuGroup[] = [
       { key: 'theme-preview', label: '预览与真机', url: '/pages/theme/preview' },
       { key: 'theme-release', label: '发布中心', url: '/pages/theme/release' }
     ]
+  },
+  {
+    key: 'message-app',
+    label: '私信管理 · APP演示',
+    items: [
+      { key: 'msg-app-conversations', label: '私信会话列表', url: '/pages/message/app/conversations' },
+      { key: 'msg-app-chat', label: '聊天详情', url: '/pages/message/app/chat' },
+      { key: 'msg-app-profile', label: '用户主页私信入口', url: '/pages/message/app/profile' },
+      { key: 'msg-app-blocks', label: '拉黑管理', url: '/pages/message/app/blocks' },
+      { key: 'msg-app-report', label: '举报提交', url: '/pages/message/app/report' }
+    ]
+  },
+  {
+    key: 'message-admin',
+    label: '私信管理 · 后台管理',
+    items: [
+      { key: 'msg-admin-conversations', label: '私信会话查询', url: '/pages/message/admin/conversations' },
+      { key: 'msg-admin-detail', label: '后台消息查看', url: '/pages/message/admin/detail' },
+      { key: 'msg-admin-reports', label: '举报工单列表', url: '/pages/message/admin/reports' },
+      { key: 'msg-admin-config', label: '后台配置', url: '/pages/message/admin/config' }
+    ]
   }
 ]
 

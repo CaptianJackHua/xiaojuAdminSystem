@@ -59,6 +59,42 @@
         "navigationBarBackgroundColor": "#ffffff",
         "navigationBarTextStyle": "black"
       }
+    },
+    {
+      "path": "pages/message/app/conversations",
+      "style": { "navigationStyle": "custom", "navigationBarTitleText": "私信会话列表", "navigationBarBackgroundColor": "#ffffff", "navigationBarTextStyle": "black" }
+    },
+    {
+      "path": "pages/message/app/chat",
+      "style": { "navigationStyle": "custom", "navigationBarTitleText": "聊天详情", "navigationBarBackgroundColor": "#ffffff", "navigationBarTextStyle": "black" }
+    },
+    {
+      "path": "pages/message/app/profile",
+      "style": { "navigationStyle": "custom", "navigationBarTitleText": "用户主页私信入口", "navigationBarBackgroundColor": "#ffffff", "navigationBarTextStyle": "black" }
+    },
+    {
+      "path": "pages/message/app/blocks",
+      "style": { "navigationStyle": "custom", "navigationBarTitleText": "拉黑管理", "navigationBarBackgroundColor": "#ffffff", "navigationBarTextStyle": "black" }
+    },
+    {
+      "path": "pages/message/app/report",
+      "style": { "navigationStyle": "custom", "navigationBarTitleText": "举报提交", "navigationBarBackgroundColor": "#ffffff", "navigationBarTextStyle": "black" }
+    },
+    {
+      "path": "pages/message/admin/conversations",
+      "style": { "navigationStyle": "custom", "navigationBarTitleText": "私信会话查询", "navigationBarBackgroundColor": "#ffffff", "navigationBarTextStyle": "black" }
+    },
+    {
+      "path": "pages/message/admin/detail",
+      "style": { "navigationStyle": "custom", "navigationBarTitleText": "后台消息查看", "navigationBarBackgroundColor": "#ffffff", "navigationBarTextStyle": "black" }
+    },
+    {
+      "path": "pages/message/admin/reports",
+      "style": { "navigationStyle": "custom", "navigationBarTitleText": "举报工单列表", "navigationBarBackgroundColor": "#ffffff", "navigationBarTextStyle": "black" }
+    },
+    {
+      "path": "pages/message/admin/config",
+      "style": { "navigationStyle": "custom", "navigationBarTitleText": "私信后台配置", "navigationBarBackgroundColor": "#ffffff", "navigationBarTextStyle": "black" }
     }
   ],
   "globalStyle": {
